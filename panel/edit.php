@@ -1,8 +1,8 @@
 <?php
 require_once('../functions/pdo_connect.php');
 session_start();
-if ($_SESSION['login'] === false) {
-    echo "<h1>page not found</h1>";
+if (!isset($_SESSION['login'])) {
+    header('location:http://localhost/php_basic/02-ex/login.php');
 }
 // categories
 $query = "SELECT * FROM categories";

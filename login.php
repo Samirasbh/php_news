@@ -1,6 +1,6 @@
 <?php
-session_start();
 require_once('./functions/pdo_connect.php');
+session_start();
 $error = '';
 if (
     (isset($_POST['email']) && $_POST['email'] !== '') &&

@@ -1,15 +1,14 @@
 <?php
 require_once('../functions/pdo_connect.php');
 session_start();
+if(!isset($_SESSION['login'])){
+    header('location:http://localhost/php_basic/02-ex/login.php');
+}
 // select posts and category name
 $query = "SELECT * FROM posts as p INNER JOIN categories as c WHERE p.category_id = c.category_id ORDER BY id";
 $stmt = $conn->prepare($query);
 $stmt->execute();
 $res = $stmt->fetchAll();
-if ($_SESSION['login'] === false) {
-    echo "<h1>page not found</h1>";
-}
-else{
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -219,4 +218,3 @@ else{
 </body>
 
 </html>
-<?php } ?>

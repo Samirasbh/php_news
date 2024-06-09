@@ -1,15 +1,14 @@
 <?php
 require_once('../functions/pdo_connect.php');
 session_start();
+if (!isset($_SESSION['login'])) {
+    header('location:http://localhost/php_basic/02-ex/login.php');
+}
 // categories
 $sqlc = "SELECT * FROM categories";
 $statement = $conn->prepare($sqlc);
 $statement->execute();
 $result = $statement->fetchAll();
-
-if ($_SESSION['login'] === false) {
-    echo "<h1>page not found</h1>";
-}
 // create a new row in database
 if ((isset($_POST['title']) && $_POST['title'] != '') &&
     (isset($_POST['summary']) && $_POST['summary'] != '') &&
@@ -37,9 +36,9 @@ if ((isset($_POST['title']) && $_POST['title'] != '') &&
 
     // check image field
     $tmpfile = $_FILES['file']['tmp_name'];
-    $newfile = '../assets/'.$_FILES['file']['name'];
+    $newfile = '../assets/' . $_FILES['file']['name'];
     move_uploaded_file($tmpfile, $newfile);
-    $fileaddress = 'http://localhost/php_basic/02-ex/assets/'.$_FILES['file']['name'];
+    $fileaddress = 'http://localhost/php_basic/02-ex/assets/' . $_FILES['file']['name'];
 
     $sql = "INSERT INTO posts SET category_id=? , title=? , summary =? , content = ? , status = ? , img_address = ?";
     $stmt = $conn->prepare($sql);
@@ -158,10 +157,10 @@ if ((isset($_POST['title']) && $_POST['title'] != '') &&
 
                 <label for="categories">select category </label>
                 <select name="categories" id="categories">
-                <?php 
-                    foreach($result as $rr){
-                        $category_name = $rr['name']?>
-                    <option value="<?=$category_name?>"><?=$category_name?></option>
+                    <?php
+                    foreach ($result as $rr) {
+                        $category_name = $rr['name'] ?>
+                        <option value="<?= $category_name ?>"><?= $category_name ?></option>
                     <?php } ?>
                 </select>
                 <input type="submit" value="enter" name="submit">
