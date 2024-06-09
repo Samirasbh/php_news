@@ -19,6 +19,7 @@ if (isset($_GET['edit_id']) && $_GET['edit_id'] != '') {
     $sql->execute([$_GET['edit_id']]);
     $res = $sql->fetch();
     if ($res) {
+        $db_post_id = $res['id'];
         $db_category_id = $res['category_id'];
         $db_title = $res['title'];
         $db_summary = $res['summary'];
@@ -60,7 +61,7 @@ if ((isset($_POST['title']) && $_POST['title'] != '') &&
 
 
     $post_id = $_GET['edit_id'];
-    $editsql = "UPDATE posts set category_id = ? , title = ? , summary = ? , content=? , status = ? , img_address = ? WHERE  ";
+    $editsql = "UPDATE posts set category_id = ? , title = ? , summary = ? , content=? , status = ? , img_address = ? WHERE id =$db_post_id";
     $editstm = $conn->prepare($editsql);
     $editstm->execute([$new_category_id, $_POST['title'], $_POST['summary'], $_POST['content'], $status, $fileaddress]);
 }
