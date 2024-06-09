@@ -42,14 +42,14 @@ if ((isset($_POST['title']) && $_POST['title'] != '') &&
     ($_SERVER['REQUEST_METHOD'] == 'POST')
 ) {
     // check status
-    if ($_POST['status'] === "active") $status === 1;
-    if ($_POST['status'] === "disable") $status === 0;
+    if ($_POST['status'] === "active") $status = 1;
+    if ($_POST['status'] === "disable") $status = 0;
 
 
     // check category name and id
-    $cat_name_sql = "SELECT * FROM categories WHERE category_name = ?";
+    $cat_name_sql = "SELECT * FROM categories WHERE name = ?";
     $cat_name_stm = $conn->prepare($cat_name_sql);
-    $cat_name_stm->execute($_POST['categories']);
+    $cat_name_stm->execute([$_POST['categories']]);
     $cat_name_res = $cat_name_stm->fetch();
     $new_category_id = $cat_name_res['category_id'];
 
@@ -64,6 +64,9 @@ if ((isset($_POST['title']) && $_POST['title'] != '') &&
     $editsql = "UPDATE posts set category_id = ? , title = ? , summary = ? , content=? , status = ? , img_address = ? WHERE id =$db_post_id";
     $editstm = $conn->prepare($editsql);
     $editstm->execute([$new_category_id, $_POST['title'], $_POST['summary'], $_POST['content'], $status, $fileaddress]);
+    if($editstm){
+        header('locatin: http://localhost/php_basic/02-ex/panel/post.php');
+    }
 }
 ?>
 <!DOCTYPE html>
