@@ -18,8 +18,6 @@ if (
         $user = $stmt->fetch();
         if ($user) {
             if (password_verify($password, $user['password'])) {
-                $_SESSION['username'] = $email;
-                $_SESSION['password'] = $password;
                 $_SESSION['login'] = true;
             }
             header('location:http://localhost/php_basic/02-ex/panel');

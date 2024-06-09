@@ -1,8 +1,6 @@
 <?php
 require_once('../functions/pdo_connect.php');
 session_start();
-// var_dump($_SESSION['login']);
-// echo session_status();
 // select posts and category name
 $query = "SELECT * FROM posts as p INNER JOIN categories as c WHERE p.category_id = c.category_id ORDER BY id";
 $stmt = $conn->prepare($query);
@@ -11,6 +9,7 @@ $res = $stmt->fetchAll();
 if ($_SESSION['login'] === false) {
     echo "<h1>page not found</h1>";
 }
+else{
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -119,7 +118,6 @@ if ($_SESSION['login'] === false) {
         }
     </style>
 </head>
-
 <body>
     <header>
         <a href="./index.php" class="logo">
@@ -221,3 +219,4 @@ if ($_SESSION['login'] === false) {
 </body>
 
 </html>
+<?php } ?>
