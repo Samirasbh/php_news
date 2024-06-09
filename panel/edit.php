@@ -64,9 +64,7 @@ if ((isset($_POST['title']) && $_POST['title'] != '') &&
     $editsql = "UPDATE posts set category_id = ? , title = ? , summary = ? , content=? , status = ? , img_address = ? WHERE id =$db_post_id";
     $editstm = $conn->prepare($editsql);
     $editstm->execute([$new_category_id, $_POST['title'], $_POST['summary'], $_POST['content'], $status, $fileaddress]);
-    if($editstm){
-        header('locatin: http://localhost/php_basic/02-ex/panel/post.php');
-    }
+    header('locatin: http://localhost/php_basic/02-ex/panel/post.php');
 }
 ?>
 <!DOCTYPE html>
@@ -193,7 +191,6 @@ if ((isset($_POST['title']) && $_POST['title'] != '') &&
                     <div class="img">
                         <img src="<?= $db_address ?>" alt="post image">
                     </div>
-                    <p>image address : <?= $db_address ?></p>
 
                 <?php } ?>
                 <input type="file" name="file" id="file" placeholder="post image">
