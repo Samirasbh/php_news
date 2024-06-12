@@ -65,8 +65,16 @@ if ((isset($_POST['submit'])) && (isset($_POST['first_name']) && $_POST['first_n
             align-items: center;
         }
     </style>
-</head>
+    <script>
+    document.getElementById('fname').addEventListener("keypress" , function(e){
+    
+    });
 
+
+
+    
+    </script>
+</head>
 <body>
 
     <section>

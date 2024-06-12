@@ -1,7 +1,7 @@
 <?php
 require_once('../functions/pdo_connect.php');
 session_start();
-if(!isset($_SESSION['login'])){
+if (!isset($_SESSION['login'])) {
     header('location:http://localhost/php_basic/02-ex/login.php');
 }
 // select posts and category name
@@ -9,6 +9,7 @@ $query = "SELECT * FROM posts as p INNER JOIN categories as c WHERE p.category_i
 $stmt = $conn->prepare($query);
 $stmt->execute();
 $res = $stmt->fetchAll();
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -101,10 +102,15 @@ $res = $stmt->fetchAll();
             height: 100%;
         }
 
-        button {
+        button,
+        .active,
+        .disable {
             display: block;
             padding: 2px;
             margin: 5px;
+            padding: 5px;
+            border: 1px solid gray;
+            background-color: #fff;
             border-radius: 5px;
         }
 
@@ -115,8 +121,15 @@ $res = $stmt->fetchAll();
         .disable {
             color: red;
         }
+
+        a:hover {
+            cursor: pointer;
+        }
     </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
 </head>
+
 <body>
     <header>
         <a href="./index.php" class="logo">
@@ -125,6 +138,7 @@ $res = $stmt->fetchAll();
         <a href="../login.php">logout</a>
     </header>
     <section>
+        <!-- left side in panel -->
         <div class="dashboard">
             <h3>you logged in</h3>
             <h4>welcom to admin panel </h4>
@@ -133,14 +147,15 @@ $res = $stmt->fetchAll();
                 <a href="http://localhost/php_basic/02-ex/panel/post.php">posts</a>
             </form>
         </div>
-
+        <!-- main section - right side in panel -->
         <div class="context">
             <div class="post_heading">
-                <h2>posts</h2>
+                <h2 id="get">posts</h2>
                 <a href="http://localhost/php_basic/02-ex/panel/create.php">create</a>
             </div>
 
             <table>
+                <!-- table headings -->
                 <tr>
                     <th style="width:2%">#</th>
                     <th style="width:10%">title</th>
@@ -151,7 +166,9 @@ $res = $stmt->fetchAll();
                     <th style="width:5%">status</th>
                     <th style="width:10% ">function</th>
                 </tr>
+                <!-- make dynamic table rows for each row in database -->
                 <?php
+                $count = 1;
                 foreach ($res as $r) {
                     $id = $r['id'];
                     $title = $r['title'];
@@ -160,33 +177,9 @@ $res = $stmt->fetchAll();
                     $img_address = $r['img_address'];
                     $category_name = $r['name'];
                     $status = $r['status'];
-
-                    // change status button
-                    if ((isset($_GET['status_id'])) && $_GET['status_id'] != null && $_GET['status_id'] == $id) {
-                        $ch_query = "SELECT * FROM posts WHERE id=?";
-                        $ch_stm = $conn->prepare($ch_query);
-                        $ch_stm->execute([$_GET['status_id']]);
-                        $ch_res = $ch_stm->fetch();
-                        if ($ch_res['status'] === 1) {
-                            $q = $conn->prepare("UPDATE posts SET status = 0 WHERE id=$id");
-                            $q->execute();
-                        }
-                        if ($ch_res['status'] === 0) {
-                            $q = $conn->prepare("UPDATE posts SET status = 1 WHERE id=$id");
-                            $q->execute();
-                        }
-                    }
-
-                    // delete button
-                    if ((isset($_GET['delete_id'])) && $_GET['delete_id'] != NULL && $_GET['delete_id'] == $id) {
-                        $del_query = "DELETE FROM posts WHERE id = ?";
-                        $del_stm = $conn->prepare($del_query);
-                        $del_stm->execute([$_GET['delete_id']]);
-                    }
                 ?>
-
-                    <tr>
-                        <td><?= $id ?></td>
+                    <tr id="row-<?=$id?>">
+                        <td><?= $count ?></td>
                         <td><?= $title ?></td>
                         <td><?= $summary ?></td>
                         <td><?= $content ?></td>
@@ -194,27 +187,74 @@ $res = $stmt->fetchAll();
                             <img src="<?= $img_address ?>" alt="post image">
                         </td>
                         <td><?= $category_name ?></td>
+                        <!-- status column of each row -->
                         <td>
-                            <?php
-                            if ($status === 1) { ?><button class="active">active</button>
-                            <?php }
-                            if ($status === 0) { ?><button class="disable">disable</button>
-                            <?php } ?>
+                            <div <?php if ($status === 1) { ?> class="active" id="active-<?= $id ?>" <?php }
+                            if ($status === 0) { ?> class="disable" id="disable-<?= $id ?>" <?php } ?>>
+
+                                <?php if ($status === 1) { ?>active<?php } ?>
+                                <?php if ($status === 0) { ?>disable<?php } ?>
+                            </div>
+
 
                         </td>
+                        <!-- function column -->
                         <td>
                             <a href="http://localhost/php_basic/02-ex/panel/edit.php?edit_id=<?= $id ?>">edit</a>
-                            <a href="http://localhost/php_basic/02-ex/panel/post.php?delete_id=<?= $id ?>">delete</a>
-                            <a href="http://localhost/php_basic/02-ex/panel/post.php?status_id=<?= $id ?>">change status</a>
+                            <a class="del-btn" id="del-<?=$id?>" onclick="delete_row(id)">delete</a>
+                            <a class="sts-btn" id="sts-<?=$id?>" onclick="change_status(id)">change status</a>
                         </td>
                     </tr>
-
-
-
-                <?php } ?>
+                <?php $count++; } ?>
             </table>
         </div>
     </section>
+
+    <script>
+        // axios code for change status
+        var status_list = document.getElementsByClassName('sts-btn');
+        for (let s of status_list) {
+            var id = s.id;
+            }
+        function change_status(id) {
+            axios.get(`http://localhost/php_basic/02-ex/functions/change_status.php?id=${id}`)
+                .then(function(response) {
+                    console.log(response);
+                    if (response.data.status == "disable") {
+                        idd = id.split("-");
+                        post_id = idd[1];
+                        a = document.getElementById(`active-${post_id}`);
+                        a.innerText = "disable";
+                        a.className = "disable";
+                    } else
+                    if (response.data.status == "active") {
+                        idd = id.split("-");
+                        post_id = idd[1];
+                        b = document.getElementById(`disable-${post_id}`);
+                        b.innerText = "active";
+                        b.className = "active";
+                    }
+                })
+        }
+
+        // axios for delete a row
+        var delete_list = document.getElementsByClassName('del-btn');
+        for(let d of delete_list){
+            var Did = d.id;
+        }
+        function delete_row(Did){
+            axios.get(`http://localhost/php_basic/02-ex/functions/delete.php?id=${Did}`)
+            .then(function(response){
+                console.log(response);
+                if(response.data.status == "deleted"){
+                    i = Did.split("-");
+                    post_ID = i[1];
+                    document.getElementById(`row-${post_ID}`).remove()
+                }
+            });
+        }
+
+    </script>
 </body>
 
 </html>
