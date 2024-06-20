@@ -5,7 +5,7 @@ if (!isset($_SESSION['login'])) {
     header('location:http://localhost/php_basic/02-ex/login.php');
 }
 // select posts and category name
-$query = "SELECT * FROM posts as p INNER JOIN categories as c WHERE p.category_id = c.category_id ORDER BY id";
+$query = "SELECT * FROM posts as p INNER JOIN categories as c WHERE p.category_id = c.category_id AND deleted_at IS NULL ORDER BY id";
 $stmt = $conn->prepare($query);
 $stmt->execute();
 $res = $stmt->fetchAll();
@@ -143,7 +143,7 @@ $res = $stmt->fetchAll();
             <h3>you logged in</h3>
             <h4>welcom to admin panel </h4>
             <form method="get" class="show_btns">
-                <a href=""> categories</a>
+                <a href="http://localhost/php_basic/02-ex/panel/category.php"> categories</a>
                 <a href="http://localhost/php_basic/02-ex/panel/post.php">posts</a>
             </form>
         </div>
@@ -178,7 +178,7 @@ $res = $stmt->fetchAll();
                     $category_name = $r['name'];
                     $status = $r['status'];
                 ?>
-                    <tr id="row-<?=$id?>">
+                    <tr id="row-<?= $id ?>">
                         <td><?= $count ?></td>
                         <td><?= $title ?></td>
                         <td><?= $summary ?></td>
@@ -190,7 +190,7 @@ $res = $stmt->fetchAll();
                         <!-- status column of each row -->
                         <td>
                             <div <?php if ($status === 1) { ?> class="active" id="active-<?= $id ?>" <?php }
-                            if ($status === 0) { ?> class="disable" id="disable-<?= $id ?>" <?php } ?>>
+                                if ($status === 0) { ?> class="disable" id="disable-<?= $id ?>" <?php } ?>>
 
                                 <?php if ($status === 1) { ?>active<?php } ?>
                                 <?php if ($status === 0) { ?>disable<?php } ?>
@@ -201,22 +201,28 @@ $res = $stmt->fetchAll();
                         <!-- function column -->
                         <td>
                             <a href="http://localhost/php_basic/02-ex/panel/edit.php?edit_id=<?= $id ?>">edit</a>
-                            <a class="del-btn" id="del-<?=$id?>" onclick="delete_row(id)">delete</a>
-                            <a class="sts-btn" id="sts-<?=$id?>" onclick="change_status(id)">change status</a>
+                            <a href="http://localhost/php_basic/02-ex/panel/delete.php?post_id=<?=$id?>">delete</a>
+                            <a class="sts-btn" id="sts-<?= $id ?>">change status</a>
                         </td>
                     </tr>
-                <?php $count++; } ?>
+                <?php 
+                  $count++;
+                } ?>
             </table>
         </div>
     </section>
 
     <script>
         // axios code for change status
-        var status_list = document.getElementsByClassName('sts-btn');
-        for (let s of status_list) {
-            var id = s.id;
-            }
+        var status_list = document.querySelectorAll('.sts-btn');
+        status_list.forEach((el) => {
+            el.addEventListener('click', (e) => {
+                change_status(el.id);
+            })
+        })
+        // change status function
         function change_status(id) {
+
             axios.get(`http://localhost/php_basic/02-ex/functions/change_status.php?id=${id}`)
                 .then(function(response) {
                     console.log(response);
@@ -224,36 +230,20 @@ $res = $stmt->fetchAll();
                         idd = id.split("-");
                         post_id = idd[1];
                         a = document.getElementById(`active-${post_id}`);
+                        a.id = `disable-${post_id}`;
                         a.innerText = "disable";
                         a.className = "disable";
-                    } else
+                    }
                     if (response.data.status == "active") {
                         idd = id.split("-");
                         post_id = idd[1];
                         b = document.getElementById(`disable-${post_id}`);
+                        b.id = `active-${post_id}`;
                         b.innerText = "active";
                         b.className = "active";
                     }
                 })
         }
-
-        // axios for delete a row
-        var delete_list = document.getElementsByClassName('del-btn');
-        for(let d of delete_list){
-            var Did = d.id;
-        }
-        function delete_row(Did){
-            axios.get(`http://localhost/php_basic/02-ex/functions/delete.php?id=${Did}`)
-            .then(function(response){
-                console.log(response);
-                if(response.data.status == "deleted"){
-                    i = Did.split("-");
-                    post_ID = i[1];
-                    document.getElementById(`row-${post_ID}`).remove()
-                }
-            });
-        }
-
     </script>
 </body>
 

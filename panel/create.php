@@ -137,7 +137,7 @@ if ((isset($_POST['title']) && $_POST['title'] != '') &&
             <h3>you logged in</h3>
             <h4>welcom to admin panel </h4>
             <form method="get" class="show_btns">
-                <a href=""> categories</a>
+                <a href="http://localhost/php_basic/02-ex/panel/category.php"> categories</a>
                 <a href="http://localhost/php_basic/02-ex/panel/post.php">posts</a>
             </form>
         </div>
